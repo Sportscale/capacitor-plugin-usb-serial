@@ -181,7 +181,7 @@ public class UsbSerial implements SerialInputOutputManager.Listener {
                             openSerial(settings);
                         }
                     }
-                }, new IntentFilter(USB_PERMISSION));
+                }, new IntentFilter(USB_PERMISSION), Context.RECEIVER_NOT_EXPORTED);
                 usbManager.requestPermission(driver.getDevice(), usbPermissionIntent);
                 return;
             }
