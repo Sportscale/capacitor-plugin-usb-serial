@@ -160,7 +160,7 @@ public class UsbSerial implements SerialInputOutputManager.Listener {
                 driver = getDriverClass(device);
             }
             if (driver == null) {
-                throw new Error("connection failed: no driver for device", new Throwable("connectionFailed:NoDriverForDevice"));
+                throw new Error("connection failed: no driver for device", new Throwable("connectionFailed:NoDriverForDevice, " + device.getVendorId() + ":" + device.getProductId() + ":" + getDriverClass(device)));
             }
             if (driver.getPorts().size() < settings.portNum) {
                 throw new Error("connection failed: not enough ports at device", new Throwable("connectionFailed:NoAvailablePorts"));
