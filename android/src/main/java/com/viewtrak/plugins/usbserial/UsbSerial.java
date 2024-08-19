@@ -154,7 +154,7 @@ public class UsbSerial implements SerialInputOutputManager.Listener {
             if (device == null) {
                 throw new Error("connection failed: device not found", new Throwable("connectionFailed:DeviceNotFound"));
             }
-            UsbSerialDriver driver = getProper().probeDevice(device);
+            UsbSerialDriver driver = getDriverClass(device);
             if (driver == null) {
                 // tyring custom
                 driver = getDriverClass(device);
@@ -289,49 +289,51 @@ public class UsbSerial implements SerialInputOutputManager.Listener {
         final int vid = usbDevice.getVendorId();
         final int pid = usbDevice.getProductId();
 
-        if (vid == 1027) {
-            switch (pid) {
-                case 24577:
-                case 24592:
-                case 24593:
-                case 24596:
-                case 24597:
-                    driverClass = FtdiSerialDriver.class;
-            }
-        } else if (vid == 4292) {
-            switch (pid) {
-                case 60000:
-                case 60016:
-                case 60017:
-                    driverClass = Cp21xxSerialDriver.class;
-            }
-        } else if (vid == 1659) {
-            switch (pid) {
-                case 8963:
-                case 9123:
-                case 9139:
-                case 9155:
-                case 9171:
-                case 9187:
-                case 9203:
-                    driverClass = ProlificSerialDriver.class;
-            }
-        } else if (vid == 6790) {
-            switch (pid) {
-                case 21795:
-                case 29987:
-                    driverClass = Ch34xSerialDriver.class;
-            }
-        } else {
-            if (vid == 9025 || vid == 5446 || vid == 3725
-                    || (vid == 5824 && pid == 1155)
-                    || (vid == 1003 && pid == 8260)
-                    || (vid == 7855 && pid == 4)
-                    || (vid == 3368 && pid == 516)
-                    || (vid == 1155 && pid == 22336)
-            )
-                driverClass = CdcAcmSerialDriver.class;
-        }
+        driverClass = FtdiSerialDriver.class;
+
+        // if (vid == 1027) {
+        //     switch (pid) {
+        //         case 24577:
+        //         case 24592:
+        //         case 24593:
+        //         case 24596:
+        //         case 24597:
+        //             driverClass = FtdiSerialDriver.class;
+        //     }
+        // } else if (vid == 4292) {
+        //     switch (pid) {
+        //         case 60000:
+        //         case 60016:
+        //         case 60017:
+        //             driverClass = Cp21xxSerialDriver.class;
+        //     }
+        // } else if (vid == 1659) {
+        //     switch (pid) {
+        //         case 8963:
+        //         case 9123:
+        //         case 9139:
+        //         case 9155:
+        //         case 9171:
+        //         case 9187:
+        //         case 9203:
+        //             driverClass = ProlificSerialDriver.class;
+        //     }
+        // } else if (vid == 6790) {
+        //     switch (pid) {
+        //         case 21795:
+        //         case 29987:
+        //             driverClass = Ch34xSerialDriver.class;
+        //     }
+        // } else {
+        //     if (vid == 9025 || vid == 5446 || vid == 3725
+        //             || (vid == 5824 && pid == 1155)
+        //             || (vid == 1003 && pid == 8260)
+        //             || (vid == 7855 && pid == 4)
+        //             || (vid == 3368 && pid == 516)
+        //             || (vid == 1155 && pid == 22336)
+        //     )
+        //         driverClass = CdcAcmSerialDriver.class;
+        // }
 
         if (driverClass != null) {
             final UsbSerialDriver driver;
