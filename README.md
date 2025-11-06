@@ -189,16 +189,17 @@ addListener(eventName: 'error', listenerFunc: (data: { error: string; }) => void
 
 #### UsbSerialOptions
 
-| Prop           | Type                 |
-| -------------- | -------------------- |
-| **`deviceId`** | <code>number</code>  |
-| **`portNum`**  | <code>number</code>  |
-| **`baudRate`** | <code>number</code>  |
-| **`dataBits`** | <code>number</code>  |
-| **`stopBits`** | <code>number</code>  |
-| **`parity`**   | <code>number</code>  |
-| **`dtr`**      | <code>boolean</code> |
-| **`rts`**      | <code>boolean</code> |
+| Prop           | Type                         |
+| -------------- | ---------------------------- |
+| **`deviceId`** | <code>number</code>          |
+| **`portNum`**  | <code>number</code>          |
+| **`baudRate`** | <code>number</code>          |
+| **`dataBits`** | <code>number</code>          |
+| **`stopBits`** | <code>number</code>          |
+| **`parity`**   | <code>number</code>          |
+| **`dtr`**      | <code>boolean</code>         |
+| **`rts`**      | <code>boolean</code>         |
+| **`protocol`** | <code>'NMEA' \| 'RAW'</code> |
 
 
 #### PluginListenerHandle

@@ -9,6 +9,7 @@ export interface UsbSerialOptions {
   parity?: number;
   dtr?: boolean;
   rts?: boolean;
+  protocol?: 'NMEA' | 'RAW'; // Protocol mode: NMEA (line-based, default) or RAW (binary hex)
 }
 
 export interface UsbSerialDevice {

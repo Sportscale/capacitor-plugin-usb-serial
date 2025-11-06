@@ -276,6 +276,13 @@
           "docs": "",
           "complexTypes": [],
           "type": "boolean | undefined"
+        },
+        {
+          "name": "protocol",
+          "tags": [],
+          "docs": "",
+          "complexTypes": [],
+          "type": "'NMEA' | 'RAW' | undefined"
         }
       ]
     },

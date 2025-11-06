@@ -61,6 +61,15 @@ public class UsbSerialPlugin extends Plugin implements Callback {
             if (call.hasOption("rts"))
                 settings.rts = call.getBoolean("rts");
 
+            if (call.hasOption("protocol")) {
+                String protocolStr = call.getString("protocol");
+                if ("RAW".equalsIgnoreCase(protocolStr)) {
+                    settings.protocol = UsbSerialOptions.Protocol.RAW;
+                } else {
+                    settings.protocol = UsbSerialOptions.Protocol.NMEA;
+                }
+            }
+
             implementation.openSerial(settings);
             call.resolve(new JSObject());
         } catch (Exception e) {

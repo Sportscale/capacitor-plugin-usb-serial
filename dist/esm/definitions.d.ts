@@ -8,6 +8,7 @@ export interface UsbSerialOptions {
     parity?: number;
     dtr?: boolean;
     rts?: boolean;
+    protocol?: 'NMEA' | 'RAW';
 }
 export interface UsbSerialDevice {
     pid: number;

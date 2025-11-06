@@ -67,6 +67,8 @@ public class UsbSerial implements SerialInputOutputManager.Listener {
     // USB permission broadcastreceiver
     private final Handler mainLooper;
     String messageNMEA = "";
+    // Protocol mode (NMEA or RAW)
+    private UsbSerialOptions.Protocol protocol = UsbSerialOptions.Protocol.NMEA;
 
 
 //    private RateLimiter throttle = RateLimiter.create(1.0);
@@ -196,6 +198,10 @@ public class UsbSerial implements SerialInputOutputManager.Listener {
             usbSerialPort.setParameters(settings.baudRate, settings.dataBits, settings.stopBits, settings.parity);
             if (settings.dtr) usbSerialPort.setDTR(true);
             if (settings.rts) usbSerialPort.setRTS(true);
+            
+            // Store protocol mode
+            this.protocol = settings.protocol;
+            
             usbIoManager = new SerialInputOutputManager(usbSerialPort, this);
             usbIoManager.start();
 //            connected = true;
@@ -231,7 +237,18 @@ public class UsbSerial implements SerialInputOutputManager.Listener {
             throw new Error("can't send empty string to device", new Throwable("EMPTY_STRING"));
         }
         try {
-            byte[] data = (str + "\r\n").getBytes();
+            byte[] data;
+            
+            if (protocol == UsbSerialOptions.Protocol.RAW) {
+                // RAW mode: expect hex string, convert to bytes without adding line endings
+                // Flush buffers before writing (like Python code does)
+                usbSerialPort.purgeHwBuffers(true, true);
+                data = HexDump.hexStringToByteArray(str);
+            } else {
+                // NMEA mode: keep existing behavior with line endings
+                data = (str + "\r\n").getBytes();
+            }
+            
             usbSerialPort.write(data, WRITE_WAIT_MILLIS);
         } catch (Exception e) {
             closeSerial();
@@ -258,21 +275,27 @@ public class UsbSerial implements SerialInputOutputManager.Listener {
 
     private void updateReceivedData(byte[] data) {
         try {
-            messageNMEA += new String(data);
+            if (protocol == UsbSerialOptions.Protocol.RAW) {
+                // RAW mode: send data immediately as hex string without buffering
+                callback.receivedData(HexDump.toHexString(data));
+            } else {
+                // NMEA mode: existing line-based parsing
+                messageNMEA += new String(data);
 
-            int eol = messageNMEA.indexOf(0x0a);
-            if (-1 != eol) {
-                String sentence = messageNMEA.substring(0, eol + 1);
-                messageNMEA = messageNMEA.substring(eol + 1);
+                int eol = messageNMEA.indexOf(0x0a);
+                if (-1 != eol) {
+                    String sentence = messageNMEA.substring(0, eol + 1);
+                    messageNMEA = messageNMEA.substring(eol + 1);
 
 //                    Boolean allowed = throttle.tryAcquire();
 //                    if (!allowed) {
 //                        return;
 //                    }
 
-                callback.receivedData(sentence);
-            } else if (messageNMEA.length() > 128) {
-                throw new Exception("invalid NMEA string");
+                    callback.receivedData(sentence);
+                } else if (messageNMEA.length() > 128) {
+                    throw new Exception("invalid NMEA string");
+                }
             }
         } catch (Exception exception) {
             updateReadDataError(exception);
