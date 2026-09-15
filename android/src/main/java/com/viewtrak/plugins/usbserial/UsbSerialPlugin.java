@@ -10,6 +10,13 @@ import com.getcapacitor.annotation.CapacitorPlugin;
 
 import org.json.JSONArray;
 
+// Every plugin method below catches Throwable rather than Exception: UsbSerial
+// signals all of its failures with java.lang.Error ("connection failed: device
+// not found", "not connected", "connection lost", ...), and Error is a sibling
+// of Exception under Throwable, not a subclass. Catching Exception let those
+// escape the plugin method, and Bridge.callPluginMethod rethrows whatever it
+// catches as a RuntimeException on the plugin HandlerThread -- so a missing
+// scale killed the app instead of rejecting the call.
 @CapacitorPlugin(name = "UsbSerial")
 public class UsbSerialPlugin extends Plugin implements Callback {
     private UsbSerial implementation;
@@ -27,7 +34,7 @@ public class UsbSerialPlugin extends Plugin implements Callback {
             JSONArray devices = implementation.devices();
             jsObject.put("devices", devices);
             call.resolve(jsObject);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             call.reject(e.toString());
         }
     }
@@ -72,7 +79,7 @@ public class UsbSerialPlugin extends Plugin implements Callback {
 
             implementation.openSerial(settings);
             call.resolve(new JSObject());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             call.reject(e.toString());
         }
     }
@@ -82,7 +89,7 @@ public class UsbSerialPlugin extends Plugin implements Callback {
         try {
             implementation.closeSerial();
             call.resolve(new JSObject());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             call.reject(e.toString());
         }
     }
@@ -94,7 +101,7 @@ public class UsbSerialPlugin extends Plugin implements Callback {
             String result = implementation.readSerial();
             jsObject.put("data", result);
             call.resolve(jsObject);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             call.reject(e.toString());
         }
     }
@@ -105,7 +112,7 @@ public class UsbSerialPlugin extends Plugin implements Callback {
             String data = call.hasOption("data") ? call.getString("data") : "";
             implementation.writeSerial(data);
             call.resolve(new JSObject());
-        } catch (Exception e) {
+        } catch (Throwable e) {
             call.reject(e.toString());
         }
     }
